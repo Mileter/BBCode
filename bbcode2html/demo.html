@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BBCode Parser Demo</title>
+  <style>
+    .parsed-content {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>BBCode Parser Demo</h1>
+  <textarea id="bbcode-input" rows="10" cols="50">[b]Bold text[/b] and [size=14px][i]italicized[/i][/size] [u]underlined[/u] text.</textarea>
+  <button id="parse-button">Parse BBCode</button>
+  <div id="parsed-content" class="parsed-content"></div>
+  
+  <script src="parser.js"></script>  <!-- Import parser -->
+
+  <script>
+    // Create a new instance of BBCodeParser
+    const parser = new BBCodeParser();
+
+    // Function to parse BBCode
+    function parseBBCode() {
+      const inputElement = document.getElementById('bbcode-input');
+      const parsedContentElement = document.getElementById('parsed-content');
+      const bbcodeInput = inputElement.value;
+      const parsedHtml = parser.parse(bbcodeInput);
+      parsedContentElement.innerHTML = parsedHtml;
+    }
+
+    // Add event listener to the parse button
+    document.getElementById('parse-button').addEventListener('click', parseBBCode);
+  </script>
+</body>
+</html>
+
