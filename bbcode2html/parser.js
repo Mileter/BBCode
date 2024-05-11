@@ -38,12 +38,36 @@ class BBCodeParser {
   }
 
   parseImg(tag) {
-    // Extract URL from img tag
-    const urlMatch = tag.match(/\[img\](.*?)\[\/img\]/);
-    if (urlMatch && urlMatch[1]) {
-      return `<img src="${urlMatch[1]}" />`;
+    // Extract image attributes from img tag
+    const imgMatch = tag.match(/\[img(?:\s+([^]+?))?\](.*?)\[\/img\]/);
+    if (imgMatch) {
+      let attributes = '';
+      if (imgMatch[1]) {
+        attributes = imgMatch[1].trim();
+      }
+      let imgTag = '<img ';
+      if (attributes) {
+        const widthMatch = attributes.match(/width=["']?(\d+)["']?/);
+        if (widthMatch && widthMatch[1]) {
+          imgTag += `width="${widthMatch[1]}" `;
+        }
+        const heightMatch = attributes.match(/height=["']?(\d+)["']?/);
+        if (heightMatch && heightMatch[1]) {
+          imgTag += `height="${heightMatch[1]}" `;
+        }
+        const altMatch = attributes.match(/alt=["']?([^"'\]]+)["']?/);
+        if (altMatch && altMatch[1]) {
+          imgTag += `alt="${altMatch[1]}" `;
+        }
+        const titleMatch = attributes.match(/title=["']?([^"'\]]+)["']?/);
+        if (titleMatch && titleMatch[1]) {
+          imgTag += `title="${titleMatch[1]}" `;
+        }
+      }
+      imgTag += `src="${imgMatch[2]}" />`;
+      return imgTag;
     } else {
-      return tag; // Return the original tag if URL is not found
+      return tag; // Return the original tag if no match is found
     }
   }
 
