@@ -11,17 +11,23 @@ class BBCodeParser {
 
   parse(input) {
     // Regular expression to match BBCode tags and their contents
-    const bbRegex = /\[([^\]]+?)\]([\s\S]*?)\[\/\1\]/g;
+    const bbRegex = /\[(\/?[^\]]+?)\]/g;
 
     // Replace BBCode tags with their corresponding HTML tags
-    let html = input.replace(bbRegex, (match, tag, content) => {
-      // Check if the tag is supported
-      if (this.tags[tag]) {
-        // Replace the BBCode tag with its HTML equivalent
-        return `<${this.tags[tag]}>${content}</${this.tags[tag]}>`;
+    let html = input.replace(bbRegex, (match, tag) => {
+      if (tag.startsWith('/')) {
+        // Closing tag
+        const openTag = tag.substring(1);
+        return `</${this.tags[openTag]}>`;
       } else {
-        // If the tag is not supported, return the original text
-        return match;
+        // Opening tag
+        if (tag === 'img') {
+          return this.parseImg(match);
+        } else if (tag === 'url') {
+          return this.parseUrl(match);
+        } else {
+          return `<${this.tags[tag]}>`;
+        }
       }
     });
 
@@ -29,6 +35,32 @@ class BBCodeParser {
     html = html.replace(/\n/g, "<br>");
 
     return html;
+  }
+
+  parseImg(tag) {
+    // Extract URL from img tag
+    const urlMatch = tag.match(/\[img\](.*?)\[\/img\]/);
+    if (urlMatch && urlMatch[1]) {
+      return `<img src="${urlMatch[1]}" />`;
+    } else {
+      return tag; // Return the original tag if URL is not found
+    }
+  }
+
+  parseUrl(tag) {
+    // Extract URL and text from url tag
+    const urlMatch = tag.match(/\[url=(.*?)\](.*?)\[\/url\]/);
+    if (urlMatch && urlMatch[1]) {
+      return `<a href="${urlMatch[1]}">${urlMatch[2]}</a>`;
+    } else {
+      // If URL is not specified, treat it as a regular URL tag
+      const urlMatchWithoutText = tag.match(/\[url\](.*?)\[\/url\]/);
+      if (urlMatchWithoutText && urlMatchWithoutText[1]) {
+        return `<a href="${urlMatchWithoutText[1]}">${urlMatchWithoutText[1]}</a>`;
+      } else {
+        return tag; // Return the original tag if URL is not found
+      }
+    }
   }
 }
 
