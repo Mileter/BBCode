@@ -25,6 +25,8 @@ class BBCodeParser {
           return this.parseImg(match);
         } else if (tag === 'url') {
           return this.parseUrl(match);
+        } else if (tag === 'font' || tag === 'size' || tag === 'style') {
+          return this.parseFont(match);
         } else {
           return `<${this.tags[tag]}>`;
         }
@@ -84,6 +86,36 @@ class BBCodeParser {
       } else {
         return tag; // Return the original tag if URL is not found
       }
+    }
+  }
+
+  parseFont(tag) {
+    // Extract font attributes from font tag
+    const fontMatch = tag.match(/\[(font|size|style)(?:\s+([^]+?))?\](.*?)\[\/\1\]/);
+    if (fontMatch) {
+      let attributes = '';
+      if (fontMatch[2]) {
+        attributes = fontMatch[2].trim();
+      }
+      let fontTag = '<span ';
+      if (attributes) {
+        const colorMatch = attributes.match(/color=["']?([^"'\]]+)["']?/);
+        if (colorMatch && colorMatch[1]) {
+          fontTag += `style="color:${colorMatch[1]};" `;
+        }
+        const sizeMatch = attributes.match(/size=["']?([^"'\]]+)["']?/);
+        if (sizeMatch && sizeMatch[1]) {
+          fontTag += `style="font-size:${sizeMatch[1]};" `;
+        }
+        const styleMatch = attributes.match(/style=["']?([^"'\]]+)["']?/);
+        if (styleMatch && styleMatch[1]) {
+          fontTag += `${styleMatch[1]} `;
+        }
+      }
+      fontTag += `>${fontMatch[3]}</span>`;
+      return fontTag;
+    } else {
+      return tag; // Return the original tag if no match is found
     }
   }
 }
